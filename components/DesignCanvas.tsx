@@ -58,20 +58,67 @@ const DesignCanvas = forwardRef<HTMLDivElement, DesignCanvasProps>(({ design, ty
     }
   };
 
+  // Generate background styles based on pattern type
+  const getBackgroundPatternStyle = () => {
+    const color = design.accentColor;
+    const secondary = design.backgroundColor === '#FFFFFF' ? '#F3F4F6' : design.backgroundColor;
+    
+    switch (design.backgroundPattern) {
+      case 'dots':
+        return {
+          backgroundColor: secondary,
+          backgroundImage: `radial-gradient(${color}33 2px, transparent 2.5px)`,
+          backgroundSize: '30px 30px'
+        };
+      case 'grid':
+        return {
+          backgroundColor: secondary,
+          backgroundImage: `linear-gradient(${color}22 1px, transparent 1px), linear-gradient(90deg, ${color}22 1px, transparent 1px)`,
+          backgroundSize: '40px 40px'
+        };
+      case 'lines':
+        return {
+          backgroundColor: secondary,
+          backgroundImage: `repeating-linear-gradient(45deg, ${color}11 0, ${color}11 1px, transparent 0, transparent 50%)`,
+          backgroundSize: '20px 20px'
+        };
+      case 'gradient':
+        return {
+          background: `linear-gradient(135deg, ${secondary} 0%, ${color}22 100%)`
+        };
+      case 'mesh':
+        return {
+          backgroundColor: secondary,
+          backgroundImage: `
+            radial-gradient(at 40% 20%, ${color}22 0px, transparent 50%),
+            radial-gradient(at 80% 0%, ${color}11 0px, transparent 50%),
+            radial-gradient(at 0% 50%, ${color}11 0px, transparent 50%)
+          `
+        };
+      default: // solid
+        return { backgroundColor: secondary };
+    }
+  };
+
   const styles = getLayoutStyles();
+  const patternStyle = getBackgroundPatternStyle();
   const textColor = design.textColor || '#1a202c';
 
   return (
     <div 
       ref={ref}
-      className={`${dimensions} shadow-2xl relative overflow-hidden transition-all duration-500 bg-white mx-auto`}
-      style={{ backgroundColor: design.backgroundColor }}
+      className={`${dimensions} shadow-2xl relative overflow-hidden transition-all duration-500 mx-auto`}
+      style={patternStyle}
     >
-      {/* Randomly Generated Decorative Elements */}
+      {/* Randomly Generated Decorative Elements (Blobs/Circles) */}
+      {/* We reduce opacity slightly if there is a complex pattern to avoid clutter */}
       {design.decorativeElements && design.decorativeElements.map((el) => (
         <div
           key={el.id}
-          style={el.style}
+          style={{
+            ...el.style,
+            opacity: design.backgroundPattern === 'solid' ? el.style.opacity : parseFloat(el.style.opacity) * 0.7 
+          }}
           className="pointer-events-none"
         />
       ))}

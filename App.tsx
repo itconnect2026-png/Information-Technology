@@ -52,7 +52,13 @@ const App: React.FC = () => {
     if (canvasRef.current === null) return;
 
     try {
-      const dataUrl = await htmlToImage.toPng(canvasRef.current, { quality: 0.95 });
+      // Use pixelRatio for higher quality export and cacheBust to avoid CORS caching issues
+      const dataUrl = await htmlToImage.toPng(canvasRef.current, { 
+        quality: 1.0, 
+        pixelRatio: 2,
+        cacheBust: true,
+      });
+      
       const link = document.createElement('a');
       link.download = `pr-quick-design-${Date.now()}.png`;
       link.href = dataUrl;
@@ -66,10 +72,11 @@ const App: React.FC = () => {
         timer: 2000,
       });
     } catch (err) {
+      console.error('Export failed:', err);
       Swal.fire({
         icon: 'error',
         title: 'บันทึกไม่สำเร็จ',
-        text: 'เกิดข้อผิดพลาดในการแปลงไฟล์ภาพ',
+        text: 'เกิดข้อผิดพลาดในการแปลงไฟล์ภาพ กรุณาลองใหม่อีกครั้ง',
       });
     }
   };
@@ -78,7 +85,11 @@ const App: React.FC = () => {
      if (canvasRef.current === null) return;
      
      try {
-        const blob = await htmlToImage.toBlob(canvasRef.current);
+        const blob = await htmlToImage.toBlob(canvasRef.current, { 
+            quality: 1.0, 
+            pixelRatio: 2,
+            cacheBust: true
+        });
         if(blob && navigator.share) {
              const file = new File([blob], 'design.png', { type: 'image/png' });
              await navigator.share({

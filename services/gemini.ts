@@ -1,9 +1,10 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { DesignType, GeneratedDesign, DecorativeElement } from "../types";
+import { DesignType, GeneratedDesign, DecorativeElement, BackgroundPattern } from "../types";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const PALETTE = ['#FF8F8F', '#FFF1CB', '#C2E2FA', '#B7A3E3'];
+const PATTERNS: BackgroundPattern[] = ['solid', 'dots', 'grid', 'lines', 'gradient', 'mesh'];
 
 const getRandomColor = () => PALETTE[Math.floor(Math.random() * PALETTE.length)];
 
@@ -88,8 +89,14 @@ export const generateDesignContent = async (
   const parsed = JSON.parse(resultText);
 
   // Inject random graphics client-side to ensure uniqueness every time, even for same input
+  // Also Randomize the accent color from the palette to ensure visual variety on every click
+  const randomAccent = getRandomColor();
+  const randomPattern = PATTERNS[Math.floor(Math.random() * PATTERNS.length)];
+
   return {
     ...parsed,
+    accentColor: randomAccent, // Override AI color to guarantee randomness
+    backgroundPattern: randomPattern,
     decorativeElements: generateRandomGraphics(),
     textColor: parsed.textColor || '#1F2937'
   } as GeneratedDesign;
